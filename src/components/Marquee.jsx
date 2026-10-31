@@ -7,7 +7,7 @@ export default function Marquee() {
     const fetchTechnologies = async () => {
       try {
         const response = await fetch(
-          "http://127.0.0.1:8000/api/marquee-items"
+          `${import.meta.env.VITE_API_URL}/api/marquee-items`
         );
 
         if (!response.ok) {

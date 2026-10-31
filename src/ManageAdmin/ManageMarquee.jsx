@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "./Admin.css";
-
-const API_URL = "http://127.0.0.1:8000/api/marquee-items";
+const API_URL = `${import.meta.env.VITE_API_URL}/api/marquee-items`;
 
 export default function ManageMarquee() {
   const [items, setItems] = useState([]);

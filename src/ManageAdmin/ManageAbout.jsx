@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "./Admin.css";
-
-const API = "http://127.0.0.1:8000/api/about-sections";
+const API = `${import.meta.env.VITE_API_URL}/api/about-sections`;
 
 const initialForm = {
   name: "Vijay Kumar",
@@ -59,7 +58,7 @@ export default function ManageAbout() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/about-admin",
+        `${import.meta.env.VITE_API_URL}/api/about-admin`,
         { headers: headers() }
       );
 

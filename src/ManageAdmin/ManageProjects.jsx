@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Admin.css";
-
-const API_URL = "http://127.0.0.1:8000/api";
-const STORAGE_URL = "http://127.0.0.1:8000/storage/";
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
+const STORAGE_URL = `${import.meta.env.VITE_API_URL}/storage/`;
 
 const emptyForm = {
   title: "",

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Admin.css";
-
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 export default function AdminLogin() {
   const navigate = useNavigate();

@@ -4,7 +4,7 @@ export default function About() {
   const [about, setAbout] = useState(null);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/about")
+    fetch(`${import.meta.env.VITE_API_URL}/api/about`)
       .then((response) => {
         if (!response.ok) throw new Error("About fetch failed");
         return response.json();

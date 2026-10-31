@@ -8,8 +8,7 @@ import {
 } from "react-router-dom";
 
 import "./Admin.css";
-
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 const Icon = ({ children }) => (
   <svg
