@@ -11,6 +11,7 @@ import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import Marquee from "./components/Marquee";
 import Preloader from "./Preloader";
+import AllProjects from "./AllProjects";
 
 import AdminLogin from "./ManageAdmin/AdminLogin";
 import AdminDashboard from "./ManageAdmin/AdminDashboard";
@@ -22,6 +23,8 @@ import ManageJourney from "./ManageAdmin/ManageJourney";
 import ManageMarquee from "./ManageAdmin/ManageMarquee";
 import ManageAbout from "./ManageAdmin/ManageAbout";
 import ManageHero from "./ManageAdmin/ManageHero";
+import ManageResume from "./ManageAdmin/ManageResume";
+import ManageProfile from "./ManageAdmin/ManageProfile";
 
 function PortfolioHome() {
   const [isLoading, setIsLoading] = useState(true);
@@ -32,15 +35,9 @@ function PortfolioHome() {
 
   return (
     <>
-      {isLoading && (
-        <Preloader onComplete={handleLoadingComplete} />
-      )}
+      {isLoading && <Preloader onComplete={handleLoadingComplete} />}
 
-      <div
-        className={
-          isLoading ? "portfolio-hidden" : "portfolio-visible"
-        }
-      >
+      <div className={isLoading ? "portfolio-hidden" : "portfolio-visible"}>
         <Navbar />
         <Hero />
         <Marquee />
@@ -62,65 +59,42 @@ function App() {
         {/* Public Portfolio */}
         <Route path="/" element={<PortfolioHome />} />
 
+        <Route path="/projects" element={<AllProjects />} />
+
         {/* Admin Login */}
         <Route path="/admin/login" element={<AdminLogin />} />
 
         {/* Protected Admin Layout */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route
-            index
-            element={<Navigate to="/admin/dashboard" replace />}
-          />
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
 
-          <Route
-            path="dashboard"
-            element={<AdminDashboard />}
-          />
+          <Route path="dashboard" element={<AdminDashboard />} />
 
-          <Route
-            path="projects"
-            element={<ManageProjects />}
-          />
+          <Route path="projects" element={<ManageProjects />} />
 
-          <Route
-            path="messages"
-            element={<ManageMessages />}
-          />
+          <Route path="messages" element={<ManageMessages />} />
 
-          <Route
-            path="skills"
-            element={<SkillsManagement />}
-          />
+          <Route path="skills" element={<SkillsManagement />} />
 
-          <Route
-            path="journey"
-            element={<ManageJourney />}
-          />
+          <Route path="journey" element={<ManageJourney />} />
 
-          <Route
-            path="marquee"
-            element={<ManageMarquee />}
-          />
+          <Route path="marquee" element={<ManageMarquee />} />
 
-          <Route
-            path="about"
-            element={<ManageAbout />}
-          />
+          <Route path="about" element={<ManageAbout />} />
 
-          <Route
-            path="hero"
-            element={<ManageHero />}
-          />
+          <Route path="hero" element={<ManageHero />} />
+
+          <Route path="resume" element={<ManageResume />} />
+
+          <Route path="profile" element={<ManageProfile />} />
+
+          
         </Route>
 
         {/* 404 */}
         <Route
           path="*"
-          element={
-            <div style={{ padding: "40px" }}>
-              404 - Page Not Found
-            </div>
-          }
+          element={<div style={{ padding: "40px" }}>404 - Page Not Found</div>}
         />
       </Routes>
     </BrowserRouter>

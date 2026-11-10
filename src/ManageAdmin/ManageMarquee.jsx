@@ -27,8 +27,8 @@ export default function ManageMarquee() {
       if (!response.ok) {
         throw new Error(
           response.status === 401 || response.status === 403
-            ? "Authentication failed. Admin token check karo."
-            : "Technologies load nahi hui.",
+            ? "Authentication failed. Please log in again."
+            : "Unable to load technologies.",
         );
       }
 
@@ -49,7 +49,7 @@ export default function ManageMarquee() {
     e.preventDefault();
 
     if (!technology.trim()) {
-      setError("Technology name enter karo.");
+      setError("Please enter a technology name.");
       return;
     }
 
@@ -79,7 +79,7 @@ export default function ManageMarquee() {
       if (!response.ok) {
         throw new Error(
           result.message ||
-            "Save nahi hua. Authentication aur validation check karo.",
+            "Unable to save technology. Please check your input and try again.",
         );
       }
 
@@ -100,7 +100,7 @@ export default function ManageMarquee() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Kya tum ye technology delete karna chahte ho?")) {
+    if (!window.confirm("Are you sure you want to delete this technology?")) {
       return;
     }
 
@@ -117,7 +117,7 @@ export default function ManageMarquee() {
 
       if (!response.ok) {
         const result = await response.json().catch(() => ({}));
-        throw new Error(result.message || "Delete nahi hua.");
+        throw new Error(result.message || "Unable to delete technology.");
       }
 
       await loadItems();
@@ -145,7 +145,7 @@ export default function ManageMarquee() {
       const result = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(result.message || "Visibility update nahi hui.");
+        throw new Error(result.message || "Unable to update technology visibility.");
       }
 
       await loadItems();
@@ -158,7 +158,7 @@ export default function ManageMarquee() {
     <div className="manage-content">
       <div className="manage-header">
         <h2>Marquee Management</h2>
-        <p>Portfolio technologies manage karo.</p>
+        <p>Manage the technologies displayed on your portfolio.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="manage-form">

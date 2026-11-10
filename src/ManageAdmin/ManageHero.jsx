@@ -1,22 +1,38 @@
+
 import { useEffect, useState } from "react";
 import "./Admin.css";
+
 const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 const initialForm = {
-  name: "", eyebrow: "AVAILABLE FOR OPPORTUNITIES",
-  role_prefix: "Full Stack", role_suffix: "Developer",
+  name: "",
+  eyebrow: "AVAILABLE FOR OPPORTUNITIES",
+  role_prefix: "Full Stack",
+  role_suffix: "Developer",
   technologies: "PHP · Laravel · React",
   heading_line_1: "I build production-ready",
   heading_line_2: "interfaces for the modern web.",
-  roles: ["PHP Developer", "Laravel Developer", "React Developer", "Full Stack Developer"],
+  roles: [
+    "PHP Developer",
+    "Laravel Developer",
+    "React Developer",
+    "Full Stack Developer",
+  ],
   description: "",
-  primary_button_text: "Explore My Work", primary_button_link: "#projects",
-  secondary_button_text: "Get in touch", secondary_button_link: "#contact",
-  github_url: "", linkedin_url: "",
-  experience_value: "06+", experience_label: "MONTHS EXPERIENCE",
-  technology_count: "05+", technology_label: "TECHNOLOGIES",
-  project_count: "03+", project_label: "PROJECTS BUILT",
-  availability_text: "Open", availability_label: "TO OPPORTUNITIES",
+  primary_button_text: "Explore My Work",
+  primary_button_link: "#projects",
+  secondary_button_text: "Get in touch",
+  secondary_button_link: "#contact",
+  github_url: "",
+  linkedin_url: "",
+  experience_value: "06+",
+  experience_label: "MONTHS EXPERIENCE",
+  technology_count: "05+",
+  technology_label: "TECHNOLOGIES",
+  project_count: "03+",
+  project_label: "PROJECTS BUILT",
+  availability_text: "Open",
+  availability_label: "TO OPPORTUNITIES",
   is_active: true,
 };
 
@@ -29,114 +45,193 @@ function ManageHero() {
   const [messageType, setMessageType] = useState("success");
 
   const token = localStorage.getItem("admin_token");
-  const authHeaders = { Accept: "application/json", Authorization: `Bearer ${token}` };
+  const authHeaders = {
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`,
+  };
 
   useEffect(() => {
     const loadHero = async () => {
       if (!token) {
-        setMessage("Admin token nahi mila. Pehle admin login karo.");
-        setMessageType("error"); setLoading(false); return;
+        setMessage("Admin session not found. Please log in first.");
+        setMessageType("error");
+        setLoading(false);
+        return;
       }
+
       try {
-        const response = await fetch(`${API_URL}/hero-admin`, { headers: authHeaders });
+        const response = await fetch(`${API_URL}/hero-admin`, {
+          headers: authHeaders,
+        });
+
         if (!response.ok) {
           throw new Error(
             response.status === 401 || response.status === 403
-              ? "Login expire ho gaya ya permission nahi hai."
-              : "Hero data load nahi hua."
+              ? "Your session has expired or you do not have permission."
+              : "Unable to load Hero section data."
           );
         }
+
         const data = await response.json();
+
         if (Array.isArray(data) && data.length > 0) {
           const existingHero = data[0];
+
           setHeroId(existingHero.id);
           setForm({
-            ...initialForm, ...existingHero,
-            roles: Array.isArray(existingHero.roles) ? existingHero.roles : initialForm.roles,
+            ...initialForm,
+            ...existingHero,
+            roles: Array.isArray(existingHero.roles)
+              ? existingHero.roles
+              : initialForm.roles,
             is_active: Boolean(existingHero.is_active),
           });
         }
       } catch (error) {
-        setMessage(error.message || "Something went wrong."); setMessageType("error");
-      } finally { setLoading(false); }
+        setMessage(error.message || "Something went wrong.");
+        setMessageType("error");
+      } finally {
+        setLoading(false);
+      }
     };
+
     loadHero();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setSaving(true); setMessage("");
+    setSaving(true);
+    setMessage("");
+
     if (!token) {
-      setMessage("Admin token nahi mila. Pehle login karo.");
-      setMessageType("error"); setSaving(false); return;
+      setMessage("Admin session not found. Please log in again.");
+      setMessageType("error");
+      setSaving(false);
+      return;
     }
+
     const cleanedRoles = form.roles.map((r) => r.trim()).filter(Boolean);
+
     if (cleanedRoles.length === 0) {
-      setMessage("Kam se kam ek typewriter role add karo.");
-      setMessageType("error"); setSaving(false); return;
+      setMessage("Please add at least one typewriter role.");
+      setMessageType("error");
+      setSaving(false);
+      return;
     }
-    const payload = { ...form, roles: cleanedRoles, is_active: Boolean(form.is_active) };
+
+    const payload = {
+      ...form,
+      roles: cleanedRoles,
+      is_active: Boolean(form.is_active),
+    };
+
     const isUpdating = Boolean(heroId);
+
     try {
       const response = await fetch(
-        isUpdating ? `${API_URL}/hero-sections/${heroId}` : `${API_URL}/hero-sections`,
+        isUpdating
+          ? `${API_URL}/hero-sections/${heroId}`
+          : `${API_URL}/hero-sections`,
         {
           method: isUpdating ? "PUT" : "POST",
-          headers: { ...authHeaders, "Content-Type": "application/json" },
+          headers: {
+            ...authHeaders,
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(payload),
         }
       );
+
       const result = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        const ve = result.errors ? Object.values(result.errors).flat().join(" ") : "";
-        throw new Error(ve || result.message || "Hero save nahi hua.");
+        const validationErrors = result.errors
+          ? Object.values(result.errors).flat().join(" ")
+          : "";
+
+        throw new Error(
+          validationErrors || result.message || "Unable to save Hero section."
+        );
       }
-      if (result.hero?.id) setHeroId(result.hero.id);
-      setMessage(isUpdating ? "Hero section successfully update ho gaya!" : "Hero section successfully create ho gaya!");
+
+      if (result.hero?.id) {
+        setHeroId(result.hero.id);
+      }
+
+      setMessage(
+        isUpdating
+          ? "Hero section updated successfully!"
+          : "Hero section created successfully!"
+      );
+
       setMessageType("success");
     } catch (error) {
-      setMessage(error.message || "Something went wrong."); setMessageType("error");
-    } finally { setSaving(false); }
+      setMessage(error.message || "Something went wrong.");
+      setMessageType("error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const renderInput = (name, label, placeholder = "", type = "text") => (
     <label key={name}>
       {label}
-      <input type={type} name={name} value={form[name] ?? ""} onChange={handleChange} placeholder={placeholder} />
+      <input
+        type={type}
+        name={name}
+        value={form[name] ?? ""}
+        onChange={handleChange}
+        placeholder={placeholder}
+      />
     </label>
   );
 
   const renderTextarea = (name, label, placeholder = "") => (
     <label key={name}>
       {label}
-      <textarea name={name} value={form[name] ?? ""} onChange={handleChange} placeholder={placeholder} rows={4} />
+      <textarea
+        name={name}
+        value={form[name] ?? ""}
+        onChange={handleChange}
+        placeholder={placeholder}
+        rows={4}
+      />
     </label>
   );
 
-  if (loading) return <div className="manage-content">Loading Hero settings...</div>;
+  if (loading) {
+    return <div className="manage-content">Loading Hero settings...</div>;
+  }
 
   return (
     <div className="manage-hero">
       <header className="mh-header">
         <div>
           <h1>Manage Hero Section</h1>
-          <p>Apne portfolio ke Hero section ka content yahan se manage karo.</p>
+          <p>Manage your portfolio's Hero section content from here.</p>
         </div>
       </header>
 
       {message && (
-        <div className={`mh-alert ${messageType}`} role="status">{message}</div>
+        <div className={`mh-alert ${messageType}`} role="status">
+          {message}
+        </div>
       )}
 
       {!heroId && (
         <div className="mh-note">
-          Abhi existing Hero record nahi mila. Form save karne par naya record create hoga.
+          No existing Hero record was found. Saving this form will create a
+          new record.
         </div>
       )}
 
@@ -149,7 +244,9 @@ function ManageHero() {
             {renderInput("role_prefix", "Role Prefix")}
             {renderInput("role_suffix", "Role Suffix")}
             {renderInput("technologies", "Technology Line")}
-            <div className="mh-full">{renderTextarea("description", "Description")}</div>
+            <div className="mh-full">
+              {renderTextarea("description", "Description")}
+            </div>
           </div>
         </section>
 
@@ -164,10 +261,15 @@ function ManageHero() {
         <section className="mh-section">
           <h2>Typewriter Roles</h2>
           <label>
-            Roles — har line par ek role likho
+            Roles — enter one role per line
             <textarea
               value={form.roles.join("\n")}
-              onChange={(e) => setForm((prev) => ({ ...prev, roles: e.target.value.split("\n") }))}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  roles: e.target.value.split("\n"),
+                }))
+              }
               rows={5}
               placeholder={"PHP Developer\nLaravel Developer\nReact Developer"}
             />
@@ -188,7 +290,11 @@ function ManageHero() {
           <h2>Social Profiles</h2>
           <div className="mh-grid">
             {renderInput("github_url", "GitHub URL", "https://github.com/")}
-            {renderInput("linkedin_url", "LinkedIn URL", "https://www.linkedin.com/")}
+            {renderInput(
+              "linkedin_url",
+              "LinkedIn URL",
+              "https://www.linkedin.com/"
+            )}
           </div>
         </section>
 
@@ -209,16 +315,28 @@ function ManageHero() {
         <section className="mh-section">
           <h2>Visibility</h2>
           <label className="mh-checkbox">
-            <input type="checkbox" name="is_active" checked={form.is_active} onChange={handleChange} />
+            <input
+              type="checkbox"
+              name="is_active"
+              checked={form.is_active}
+              onChange={handleChange}
+            />
             <span>
               <strong>Show Hero Section</strong>
-              <small>Uncheck karne par public Hero API active record return nahi karegi.</small>
+              <small>
+                When unchecked, the public Hero API will not return this
+                active record.
+              </small>
             </span>
           </label>
         </section>
 
         <button type="submit" className="mh-submit" disabled={saving}>
-          {saving ? "Saving..." : heroId ? "Update Hero Section" : "Create Hero Section"}
+          {saving
+            ? "Saving..."
+            : heroId
+              ? "Update Hero Section"
+              : "Create Hero Section"}
         </button>
       </form>
     </div>

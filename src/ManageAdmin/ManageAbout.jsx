@@ -1,5 +1,7 @@
+
 import { useEffect, useState } from "react";
 import "./Admin.css";
+
 const API = `${import.meta.env.VITE_API_URL}/api/about-sections`;
 
 const initialForm = {
@@ -63,7 +65,9 @@ export default function ManageAbout() {
       );
 
       if (!response.ok) {
-        throw new Error("About load nahi hua. Admin token check karo.");
+        throw new Error(
+          "Unable to load the About section. Please log in again."
+        );
       }
 
       const data = await response.json();
@@ -114,12 +118,12 @@ export default function ManageAbout() {
           ? Object.values(result.errors).flat().join(" ")
           : result.message;
 
-        throw new Error(validationMessage || "Save failed.");
+        throw new Error(validationMessage || "Unable to save changes.");
       }
 
       setRecordId(result.id);
       setForm({ ...initialForm, ...result });
-      setMessage("About section successfully updated!");
+      setMessage("About section updated successfully!");
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -129,7 +133,7 @@ export default function ManageAbout() {
 
   async function toggleVisibility() {
     if (!recordId) {
-      setMessage("Pehle About section save karo.");
+      setMessage("Please save the About section first.");
       return;
     }
 
@@ -146,7 +150,7 @@ export default function ManageAbout() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Visibility update failed.");
+        throw new Error(result.message || "Unable to update visibility.");
       }
 
       setForm((previous) => ({
@@ -156,21 +160,21 @@ export default function ManageAbout() {
 
       setMessage(
         result.is_active
-          ? "About section visible hai."
-          : "About section hidden hai."
+          ? "About section is now visible."
+          : "About section is now hidden."
       );
     } catch (error) {
       setMessage(error.message);
     }
   }
 
-  if (loading) return <div className="manage-content">Loading About...</div>;
+  if (loading) return <div className="manage-content">Loading About section...</div>;
 
   return (
     <div className="manage-content">
       <div className="manage-header">
         <h2>About Management</h2>
-        <p>Portfolio ke About section ko manage karo.</p>
+        <p>Manage the About section displayed on your portfolio.</p>
       </div>
 
       {message && <p role="alert">{message}</p>}

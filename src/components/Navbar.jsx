@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom"; 
+import { createPortal } from "react-dom";
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 const links = [
   { label: "Work", href: "#projects" },
@@ -34,9 +35,7 @@ export default function Navbar() {
           document.documentElement.scrollHeight - window.innerHeight;
 
         const progress =
-          scrollHeight > 0
-            ? (window.scrollY / scrollHeight) * 100
-            : 0;
+          scrollHeight > 0 ? (window.scrollY / scrollHeight) * 100 : 0;
 
         setScrollProgress(Math.min(100, Math.max(0, progress)));
       });
@@ -127,7 +126,7 @@ export default function Navbar() {
           {/* DESKTOP ACTIONS */}
           <div className="nav-actions">
             <a
-              href="/images/vijay-resume.pdf"
+              href={`${API_URL}/resume/download`}
               target="_blank"
               rel="noreferrer"
               className="nav-resume"
@@ -149,9 +148,7 @@ export default function Navbar() {
             className={`mobile-menu-toggle ${menuOpen ? "is-open" : ""}`}
             type="button"
             aria-label={
-              menuOpen
-                ? "Close navigation menu"
-                : "Open navigation menu"
+              menuOpen ? "Close navigation menu" : "Open navigation menu"
             }
             aria-expanded={menuOpen}
             aria-controls="mobile-navigation"
@@ -210,9 +207,7 @@ export default function Navbar() {
                   style={{ "--link-index": index }}
                   tabIndex={menuOpen ? 0 : -1}
                 >
-                  <span className="drawer-link-number">
-                    0{index + 1}
-                  </span>
+                  <span className="drawer-link-number">0{index + 1}</span>
 
                   <span>{link.label}</span>
 
@@ -223,7 +218,7 @@ export default function Navbar() {
 
             <div className="drawer-bottom">
               <a
-                href="/images/vijay-resume.pdf"
+                href={`${API_URL}/resume/download`}
                 target="_blank"
                 rel="noreferrer"
                 className="drawer-resume"
@@ -248,7 +243,7 @@ export default function Navbar() {
             </div>
           </aside>
         </>,
-        document.body 
+        document.body,
       )}
     </>
   );

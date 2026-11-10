@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   NavLink,
   Outlet,
@@ -99,6 +99,19 @@ const NAV = [
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     ),
   },
+{
+  to: "/admin/resume",
+  label: "Resume",
+  icon: (
+    <>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="8" y1="13" x2="16" y2="13" />
+      <line x1="8" y1="17" x2="16" y2="17" />
+    </>
+  ),
+},
+
 ];
 
 export default function AdminLayout() {
@@ -108,6 +121,50 @@ export default function AdminLayout() {
   const [open, setOpen] = useState(false);
   const [authStatus, setAuthStatus] = useState("checking");
   const [admin, setAdmin] = useState(null);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileRef = useRef(null);
+
+  useEffect(() => {
+  const handleProfileUpdate = (event) => {
+    setAdmin(event.detail);
+  };
+
+  window.addEventListener("admin-profile-updated", handleProfileUpdate);
+
+  return () => {
+    window.removeEventListener(
+      "admin-profile-updated",
+      handleProfileUpdate
+    );
+  };
+}, []);
+
+useEffect(() => {
+  const handleOutsideClick = (event) => {
+    if (
+      profileRef.current &&
+      !profileRef.current.contains(event.target)
+    ) {
+      setProfileMenuOpen(false);
+    }
+  };
+
+  const handleEscape = (event) => {
+    if (event.key === "Escape") {
+      setProfileMenuOpen(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleOutsideClick);
+  document.addEventListener("touchstart", handleOutsideClick);
+  document.addEventListener("keydown", handleEscape);
+
+  return () => {
+    document.removeEventListener("mousedown", handleOutsideClick);
+    document.removeEventListener("touchstart", handleOutsideClick);
+    document.removeEventListener("keydown", handleEscape);
+  };
+}, []);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -264,19 +321,56 @@ export default function AdminLayout() {
         </div>
 
         <div className="admin-header-right">
-          <div className="admin-profile">
-            <div className="admin-avatar">
-              {(admin?.name || "V").charAt(0).toUpperCase()}
-            </div>
+ <div className="admin-profile-wrapper" ref={profileRef}>
+    <button
+      type="button"
+      className="admin-profile"
+      onClick={() => setProfileMenuOpen((prev) => !prev)}
+      aria-expanded={profileMenuOpen}
+    >
+      <div className="admin-avatar">
+  {admin?.profile_photo ? (
+    <img
+      src={`${import.meta.env.VITE_API_URL}/storage/${admin.profile_photo}`}
+      alt="Admin Profile"
+    />
+  ) : (
+    (admin?.name || "V").charAt(0).toUpperCase()
+  )}
+</div>
 
-            <div className="admin-profile-info">
-              <span className="admin-profile-name">
-                {admin?.name || "Administrator"}
-              </span>
-              <span className="admin-profile-role">Administrator</span>
-            </div>
-          </div>
+      <div className="admin-profile-info">
+        <span className="admin-profile-name">
+          {admin?.name || "Administrator"}
+        </span>
+        <span className="admin-profile-role">Administrator</span>
+      </div>
+    </button>
+
+    {profileMenuOpen && (
+      <div className="admin-profile-dropdown">
+        <div className="admin-dropdown-user">
+          <strong>{admin?.name}</strong>
+          <span>{admin?.email}</span>
         </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setProfileMenuOpen(false);
+            navigate("/admin/profile");
+          }}
+        >
+          <Icon>
+            <circle cx="12" cy="8" r="4" />
+            <path d="M5 21a7 7 0 0 1 14 0" />
+          </Icon>
+          My Profile
+        </button>
+      </div>
+    )}
+  </div>
+</div>
       </header>
 
       <aside className={`admin-sidebar${open ? " open" : ""}`}>

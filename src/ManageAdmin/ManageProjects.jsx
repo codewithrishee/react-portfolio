@@ -80,12 +80,12 @@ export default function ManageProjects() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Projects load nahi hue.");
+        throw new Error(result.message || "Unable to load projects.");
       }
 
       setProjects(result.data || []);
     } catch (err) {
-      setError(err.message || "Laravel server check karo.");
+      setError(err.message || "Unable to connect to the server.");
     } finally {
       setLoading(false);
     }
@@ -116,13 +116,13 @@ export default function ManageProjects() {
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      setError("Sirf JPG, PNG ya WEBP image upload karo.");
+      setError("Please upload a JPG, PNG, or WEBP image.");
       event.target.value = "";
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      setError("Image size 2 MB se kam honi chahiye.");
+      setError("Image size must be less than 2 MB.");
       event.target.value = "";
       return;
     }
@@ -238,7 +238,7 @@ export default function ManageProjects() {
         localStorage.removeItem("admin_token");
 
         throw new Error(
-          "Session expire ho gaya. Dobara login karo."
+          "Your session has expired. Please log in again."
         );
       }
 
@@ -250,20 +250,20 @@ export default function ManageProjects() {
         throw new Error(
           validationErrors ||
             result.message ||
-            "Project save nahi hua."
+            "Unable to save project."
         );
       }
 
       setMessage(
         editingId
-          ? "Project successfully update ho gaya!"
-          : "Project successfully add ho gaya!"
+          ? "Project updated successfully!"
+          : "Project added successfully!"
       );
 
       resetForm();
       await fetchProjects();
     } catch (err) {
-      setError(err.message || "Request fail ho gayi.");
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -271,7 +271,7 @@ export default function ManageProjects() {
 
   const handleDelete = async (project) => {
     const confirmed = window.confirm(
-      `"${project.title}" ko permanently delete karna hai?`
+      `Are you sure you want to permanently delete "${project.title}"?`
     );
 
     if (!confirmed) return;
@@ -294,17 +294,17 @@ export default function ManageProjects() {
         localStorage.removeItem("admin_token");
 
         throw new Error(
-          "Session expire ho gaya. Dobara login karo."
+          "Your session has expired. Please log in again."
         );
       }
 
       if (!response.ok) {
         throw new Error(
-          result.message || "Project delete nahi hua."
+          result.message || "Unable to delete project."
         );
       }
 
-      setMessage("Project successfully delete ho gaya!");
+      setMessage("Project deleted successfully!");
 
       if (editingId === project.id) {
         resetForm();
@@ -312,7 +312,7 @@ export default function ManageProjects() {
 
       await fetchProjects();
     } catch (err) {
-      setError(err.message || "Delete request fail ho gayi.");
+      setError(err.message || "Unable to delete project. Please try again.");
     }
   };
 
@@ -393,7 +393,7 @@ export default function ManageProjects() {
             rows={7}
           />
           <small>
-            Project ka purpose, problem aur solution explain karo.
+            Describe the project's purpose, problem, and solution.
           </small>
         </label>
 
@@ -410,7 +410,7 @@ export default function ManageProjects() {
             rows={5}
           />
           <small>
-            Har feature ko alag line mein likho.
+            Enter each feature on a separate line.
           </small>
         </label>
 

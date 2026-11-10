@@ -57,7 +57,7 @@ function getImageUrl(image) {
   return `${STORAGE_URL}${image.replace(/^\/+/, "")}`;
 }
 
-export default function Projects() {
+export default function Projects({ showAll = false }) {
   const [activeFilter, setActiveFilter] = useState("all");
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -117,9 +117,14 @@ export default function Projects() {
   }, [selectedProject]);
 
   const filteredProjects =
+  
     activeFilter === "all"
       ? projects
       : projects.filter((project) => project.type === activeFilter);
+
+      const visibleProjects = showAll
+  ? filteredProjects
+  : filteredProjects.slice(0, 6);
 
   const handleImageLoad = (event) => {
     const image = event.currentTarget;
@@ -195,7 +200,7 @@ export default function Projects() {
           </div>
 
           <span className="project-total">
-            SHOWING {filteredProjects.length} PROJECTS
+            SHOWING {visibleProjects.length} OF {filteredProjects.length} PROJECTS
           </span>
         </div>
 
@@ -219,7 +224,7 @@ export default function Projects() {
 
         {!isLoading && !error && (
           <div className="projects-grid">
-            {filteredProjects.map((project) => (
+            {visibleProjects.map((project) => (
               <article className="project-card" key={project.id}>
                 <div className={`project-preview preview-${project.color}`}>
                   <div className="preview-topbar">
@@ -390,12 +395,19 @@ export default function Projects() {
         )}
 
         <div className="projects-bottom">
-          <span>MORE PROJECTS COMING SOON</span>
-          <span className="bottom-line"></span>
-          <a href="#contact">
-            Have a project in mind? Let's talk ↗
-          </a>
-        </div>
+  {!showAll && filteredProjects.length > 6 && (
+    <a href="/projects" className="view-all-projects">
+      View All Projects
+      <span>↗</span>
+    </a>
+  )}
+
+  <span className="bottom-line"></span>
+
+  <a href="#contact">
+    Have a project in mind? Let's talk ↗
+  </a>
+</div>
       </div>
 
       {selectedProject &&

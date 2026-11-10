@@ -1,12 +1,27 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 
 export default function Contact() {
-  const [message, setMessage] = useState("");
+  const [toast, setToast] = useState({
+    text: "",
+    type: "",
+  });
+
+  
   const [isSending, setIsSending] = useState(false);
 
   const email = "vijayykumar785@gmail.com";
   const github = "https://github.com/codewithrishee";
   const linkedin = "https://www.linkedin.com/in/vijayykumar001/";
+
+function showToast(text, type = "success") {
+
+  setToast({ text, type });
+
+  setTimeout(() => {
+    setToast({ text: "", type: "" });
+  }, 3500);
+}
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -24,7 +39,6 @@ export default function Contact() {
     };
 
     setIsSending(true);
-    setMessage("Sending...");
 
     try {
       const response = await fetch(
@@ -50,16 +64,13 @@ export default function Contact() {
       }
 
       form.reset();
-      setMessage("Message sent successfully! 🎉");
-
-      setTimeout(() => {
-        setMessage("");
-      }, 4000);
+      showToast("Message sent successfully!", "success");
     } catch (error) {
       console.error("Contact form error:", error);
 
-      setMessage(
-        error.message || "Unable to send message. Please try again."
+      showToast(
+        error.message || "Unable to send message. Please try again.",
+        "error"
       );
     } finally {
       setIsSending(false);
@@ -69,13 +80,9 @@ export default function Contact() {
   async function copyEmail() {
     try {
       await navigator.clipboard.writeText(email);
-      setMessage("Email copied!");
-
-      setTimeout(() => {
-        setMessage("");
-      }, 2000);
+      showToast("Email copied successfully!", "success");
     } catch {
-      setMessage(`Email: ${email}`);
+      showToast(`Email: ${email}`, "error");
     }
   }
 
@@ -170,16 +177,6 @@ export default function Contact() {
                 </svg>
               </a>
             </div>
-
-            {message && (
-              <p
-                className="contact-copy-feedback"
-                role="status"
-                aria-live="polite"
-              >
-                {message}
-              </p>
-            )}
           </div>
 
           {/* RIGHT SIDE */}
@@ -240,6 +237,58 @@ export default function Contact() {
           </form>
         </div>
       </div>
-    </section>
-  );
+
+      
+
+{toast.text &&
+  createPortal(
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        position: "fixed",
+        top: "25px",
+        right: "25px",
+        zIndex: 2147483647,
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        width: "max-content",
+        minWidth: "300px",
+        maxWidth: "calc(100vw - 30px)",
+        padding: "16px 18px",
+        borderRadius: "12px",
+        background: "#15191d",
+        color: "#fff",
+        border: "1px solid #30363d",
+        borderLeft: `4px solid ${
+          toast.type === "success" ? "#16c784" : "#ef4444"
+        }`,
+        boxShadow: "0 12px 35px rgba(0,0,0,.4)",
+      }}
+    >
+      <span style={{ fontSize: "20px" }}>
+        {toast.type === "success" ? "✓" : "!"}
+      </span>
+
+      <span style={{ flex: 1 }}>{toast.text}</span>
+
+      <button
+        type="button"
+        onClick={() => setToast({ text: "", type: "" })}
+        style={{
+          background: "transparent",
+          border: "none",
+          color: "#fff",
+          fontSize: "22px",
+          cursor: "pointer",
+        }}
+      >
+        ×
+      </button>
+    </div>,
+    document.body
+  )}
+</section>
+  )
 }

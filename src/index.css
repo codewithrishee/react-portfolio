@@ -2919,3 +2919,109 @@ a {
     padding: 24px 20px;
   }
 }
+
+
+
+/* PREMIUM CONTACT TOAST */
+
+.contact-toast {
+  position: fixed !important;
+  top: 25px !important;
+  right: 25px !important;
+  left: auto !important;
+  z-index: 999999 !important;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  width: max-content;
+  min-width: 300px;
+  max-width: min(420px, calc(100vw - 30px));
+
+  padding: 16px 18px;
+  border-radius: 12px;
+
+  background: #15191d;
+  color: #ffffff;
+
+  border: 1px solid #30363d;
+  border-left: 4px solid #16c784;
+
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+
+  animation: toastSlideIn 0.35s ease forwards;
+}
+
+.contact-toast.success {
+  border-left-color: #16c784;
+}
+
+.contact-toast.error {
+  border-left-color: #ef4444;
+}
+
+.toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+
+  background: #123d30;
+  color: #16c784;
+  font-weight: 700;
+}
+
+.contact-toast.error .toast-icon {
+  background: #451d20;
+  color: #ff6b6b;
+}
+
+.toast-message {
+  flex: 1;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.contact-toast button {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.contact-toast button:hover {
+  color: #ffffff;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .contact-toast {
+    top: 15px !important;
+    right: 15px !important;
+    left: 15px !important;
+    width: auto;
+    min-width: unset;
+    max-width: unset;
+  }
+}

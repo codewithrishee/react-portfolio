@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/skills`;
+const STORAGE_URL = `${import.meta.env.VITE_API_URL}/storage/`;
 
 const defaultCategories = [
   "ALL",
@@ -50,11 +51,9 @@ export default function Expertise() {
     ...new Set(
       skills
         .map((skill) =>
-          skill.category === "LANGUAGE"
-            ? "LANGUAGES"
-            : skill.category
+          skill.category === "LANGUAGE" ? "LANGUAGES" : skill.category,
         )
-        .filter(Boolean)
+        .filter(Boolean),
     ),
   ];
 
@@ -64,19 +63,14 @@ export default function Expertise() {
       ? skills
       : skills.filter((skill) => {
           const group =
-            skill.category === "LANGUAGE"
-              ? "LANGUAGES"
-              : skill.category;
+            skill.category === "LANGUAGE" ? "LANGUAGES" : skill.category;
 
           return group === activeCategory;
         });
 
   // Keep the selected filter valid when API data changes.
   useEffect(() => {
-    if (
-      activeCategory !== "ALL" &&
-      !categories.includes(activeCategory)
-    ) {
+    if (activeCategory !== "ALL" && !categories.includes(activeCategory)) {
       setActiveCategory("ALL");
     }
   }, [activeCategory, skills]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -86,9 +80,7 @@ export default function Expertise() {
       <div className="expertise-container">
         <div className="expertise-topline">
           <div>
-            <span className="expertise-kicker">
-              02 / TECHNOLOGIES
-            </span>
+            <span className="expertise-kicker">02 / TECHNOLOGIES</span>
 
             <h2>
               My <span>Stack.</span>
@@ -96,8 +88,8 @@ export default function Expertise() {
           </div>
 
           <p className="expertise-intro">
-            The technologies I use to build responsive interfaces
-            and practical web applications.
+            The technologies I use to build responsive interfaces and practical
+            web applications.
           </p>
         </div>
 
@@ -122,11 +114,7 @@ export default function Expertise() {
         )}
 
         {/* Loading State */}
-        {loading && (
-          <p className="expertise-intro">
-            Loading technologies...
-          </p>
-        )}
+        {loading && <p className="expertise-intro">Loading technologies...</p>}
 
         {/* Error State */}
         {!loading && error && (
@@ -137,9 +125,7 @@ export default function Expertise() {
 
         {/* Empty State */}
         {!loading && !error && skills.length === 0 && (
-          <p className="expertise-intro">
-            No technologies available yet.
-          </p>
+          <p className="expertise-intro">No technologies available yet.</p>
         )}
 
         {/* Skills Grid */}
@@ -151,9 +137,17 @@ export default function Expertise() {
                 key={skill.id ?? skill.name}
               >
                 <div className="expertise-icon">
-                  <span>
-                    {skill.icon || skill.name?.charAt(0)}
-                  </span>
+                  {skill.icon_type === "image" && skill.image ? (
+                    <img
+                      src={`${import.meta.env.VITE_API_URL}/storage/${skill.image}`}
+                      alt={`${skill.name} logo`}
+                    />
+                  ) : (
+                    <i
+                      className={skill.icon || "bi bi-code-slash"}
+                      aria-hidden="true"
+                    />
+                  )}
                 </div>
 
                 <div className="expertise-card-content">
@@ -174,8 +168,7 @@ export default function Expertise() {
         {!loading && !error && skills.length > 0 && (
           <div className="expertise-footer">
             <span>
-              SHOWING{" "}
-              {String(filteredSkills.length).padStart(2, "0")} SKILLS
+              SHOWING {String(filteredSkills.length).padStart(2, "0")} SKILLS
             </span>
 
             <span className="expertise-footer-line"></span>

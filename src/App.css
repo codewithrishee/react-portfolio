@@ -832,3 +832,28 @@ button.project-link {
 .empty-state-button:hover {
   background: rgba(167, 139, 250, 0.24);
 }
+
+.view-all-projects {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 13px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.view-all-projects:hover {
+  background: #fff;
+  color: #111;
+  transform: translateY(-3px);
+}
+
+.view-all-projects span {
+  font-size: 18px;
+}
