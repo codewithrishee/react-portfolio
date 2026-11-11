@@ -25,7 +25,6 @@ const initialForm = {
 const fields = [
   ["name", "Name"],
   ["location", "Location"],
-  ["image", "Profile Image Path"],
   ["education", "Education"],
   ["education_description", "Education Description"],
   ["profile_technologies", "Profile Technologies"],
@@ -42,6 +41,8 @@ const fields = [
 export default function ManageAbout() {
   const [form, setForm] = useState(initialForm);
   const [recordId, setRecordId] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -54,6 +55,15 @@ export default function ManageAbout() {
   useEffect(() => {
     loadAbout();
   }, []);
+
+  useEffect(() => {
+    if (!imageFile) return;
+
+    const previewUrl = URL.createObjectURL(imageFile);
+    setImagePreview(previewUrl);
+
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [imageFile]);
 
   async function loadAbout() {
     setLoading(true);
@@ -76,6 +86,7 @@ export default function ManageAbout() {
       if (record) {
         setRecordId(record.id);
         setForm({ ...initialForm, ...record });
+        setImagePreview(record.image || "");
       }
     } catch (error) {
       setMessage(error.message);
@@ -93,21 +104,56 @@ export default function ManageAbout() {
     }));
   }
 
+  function handleImageChange(event) {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setMessage("Please select a valid image.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage("Image size must be less than 5 MB.");
+      event.target.value = "";
+      return;
+    }
+
+    setImageFile(file);
+    setMessage("");
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setSaving(true);
     setMessage("");
 
     try {
+      const formData = new FormData();
+
+      Object.entries(form).forEach(([key, value]) => {
+        if (key !== "image") {
+          formData.append(key, value ?? "");
+        }
+      });
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      // Laravel multipart update: POST + method spoofing
+      if (recordId) {
+        formData.append("_method", "PUT");
+      }
+
       const response = await fetch(
         recordId ? `${API}/${recordId}` : API,
         {
-          method: recordId ? "PUT" : "POST",
-          headers: {
-            ...headers(),
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
+          method: "POST",
+          headers: headers(),
+          body: formData,
         }
       );
 
@@ -123,6 +169,8 @@ export default function ManageAbout() {
 
       setRecordId(result.id);
       setForm({ ...initialForm, ...result });
+      setImageFile(null);
+      setImagePreview(result.image || "");
       setMessage("About section updated successfully!");
     } catch (error) {
       setMessage(error.message);
@@ -168,7 +216,9 @@ export default function ManageAbout() {
     }
   }
 
-  if (loading) return <div className="manage-content">Loading About section...</div>;
+  if (loading) {
+    return <div className="manage-content">Loading About section...</div>;
+  }
 
   return (
     <div className="manage-content">
@@ -205,11 +255,37 @@ export default function ManageAbout() {
                 name={name}
                 value={form[name] ?? ""}
                 onChange={handleChange}
-                required={!["image"].includes(name)}
+                required
               />
             )}
           </label>
         ))}
+
+        <label>
+          Profile Image
+
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleImageChange}
+          />
+        </label>
+
+        {imagePreview && (
+          <div style={{ margin: "12px 0" }}>
+            <p>Image Preview:</p>
+            <img
+              src={imagePreview}
+              alt="Profile Preview"
+              style={{
+                width: "150px",
+                height: "150px",
+                objectFit: "cover",
+                borderRadius: "12px",
+              }}
+            />
+          </div>
+        )}
 
         <button type="submit" disabled={saving}>
           {saving ? "Saving..." : "Save About Section"}

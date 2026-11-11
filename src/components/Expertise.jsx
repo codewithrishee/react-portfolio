@@ -139,7 +139,11 @@ export default function Expertise() {
                 <div className="expertise-icon">
                   {skill.icon_type === "image" && skill.image ? (
                     <img
-                      src={`${import.meta.env.VITE_API_URL}/storage/${skill.image}`}
+                      src={
+  skill.image.startsWith("http")
+    ? skill.image
+    : `${import.meta.env.VITE_API_URL}/storage/${skill.image}`
+}
                       alt={`${skill.name} logo`}
                     />
                   ) : (
