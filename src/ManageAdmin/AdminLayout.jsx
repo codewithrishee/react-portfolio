@@ -114,6 +114,19 @@ const NAV = [
 
 ];
 
+// Profile photo URL helper
+const getProfilePhotoUrl = (photo) => {
+  if (!photo) return "";
+
+  // Cloudinary image URL
+  if (photo.startsWith("http://") || photo.startsWith("https://")) {
+    return photo;
+  }
+
+  // Old local storage image URL
+  return `${import.meta.env.VITE_API_URL}/storage/${photo}`;
+};
+
 export default function AdminLayout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -458,11 +471,14 @@ useEffect(() => {
       onClick={() => setProfileMenuOpen((prev) => !prev)}
       aria-expanded={profileMenuOpen}
     >
-      <div className="admin-avatar">
+     <div className="admin-avatar">
   {admin?.profile_photo ? (
     <img
-      src={`${import.meta.env.VITE_API_URL}/storage/${admin.profile_photo}`}
+      src={getProfilePhotoUrl(admin.profile_photo)}
       alt="Admin Profile"
+      onError={(e) => {
+        e.currentTarget.style.display = "none";
+      }}
     />
   ) : (
     (admin?.name || "V").charAt(0).toUpperCase()
