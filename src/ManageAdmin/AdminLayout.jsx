@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   NavLink,
   Outlet,
@@ -123,6 +123,12 @@ export default function AdminLayout() {
   const [admin, setAdmin] = useState(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileRef = useRef(null);
+  const notificationRef = useRef(null);
+
+const [notificationOpen, setNotificationOpen] = useState(false);
+const [notifications, setNotifications] = useState([]);
+const [unreadCount, setUnreadCount] = useState(0);
+const [notificationLoading, setNotificationLoading] = useState(false);
 
   useEffect(() => {
   const handleProfileUpdate = (event) => {
@@ -147,11 +153,18 @@ useEffect(() => {
     ) {
       setProfileMenuOpen(false);
     }
+    if (
+  notificationRef.current &&
+  !notificationRef.current.contains(event.target)
+) {
+  setNotificationOpen(false);
+}
   };
 
   const handleEscape = (event) => {
     if (event.key === "Escape") {
       setProfileMenuOpen(false);
+      setNotificationOpen(false);
     }
   };
 
@@ -246,6 +259,51 @@ useEffect(() => {
     };
   }, []);
 
+  const fetchNotifications = useCallback(async () => {
+  const token = localStorage.getItem("admin_token");
+
+  if (!token) return;
+
+  try {
+    setNotificationLoading(true);
+
+    const response = await fetch(
+      `${API_URL}/contact-notifications`,
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Unable to fetch notifications");
+    }
+
+    const result = await response.json();
+
+    setNotifications(result.data || []);
+    setUnreadCount(result.unread_count || 0);
+
+  } catch (error) {
+    console.error("Notification error:", error);
+  } finally {
+    setNotificationLoading(false);
+  }
+}, []);
+
+  // Load notifications after authentication and refresh every 30 seconds.
+  useEffect(() => {
+    if (authStatus !== "authenticated") return;
+
+    fetchNotifications();
+
+    const intervalId = window.setInterval(fetchNotifications, 30000);
+
+    return () => window.clearInterval(intervalId);
+  }, [authStatus, fetchNotifications]);
+
   const handleLogout = async () => {
     const token = localStorage.getItem("admin_token");
 
@@ -321,6 +379,78 @@ useEffect(() => {
         </div>
 
         <div className="admin-header-right">
+          <div className="admin-notification-wrapper" ref={notificationRef}>
+            <button
+              type="button"
+              className="admin-notification-btn"
+              aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
+              aria-expanded={notificationOpen}
+              onClick={() => {
+                setNotificationOpen((previous) => !previous);
+                fetchNotifications();
+              }}
+            >
+              <Icon>
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+                <path d="M10 21h4" />
+              </Icon>
+              {unreadCount > 0 && (
+                <span className="admin-notification-count">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {notificationOpen && (
+              <div className="admin-notification-dropdown">
+                <div className="admin-notification-heading">
+                  <strong>Notifications</strong>
+                  <span>{unreadCount} Unread</span>
+                </div>
+
+                {notificationLoading && notifications.length === 0 ? (
+                  <p className="admin-notification-empty">Loading notifications...</p>
+                ) : notifications.length === 0 ? (
+                  <p className="admin-notification-empty">No notifications yet.</p>
+                ) : (
+                  notifications.map((item) => (
+                    <button
+                      type="button"
+                      key={item.id}
+                      className={`admin-notification-item${item.is_read ? "" : " unread"}`}
+                      onClick={() => {
+                        setNotificationOpen(false);
+                        navigate("/admin/messages");
+                      }}
+                    >
+                      <span className="admin-notification-dot" />
+                      <span className="admin-notification-details">
+                        <strong>{item.name}</strong>
+                        <span>{item.subject || "New contact message"}</span>
+                        <small>
+                          {item.created_at
+                            ? new Date(item.created_at).toLocaleString()
+                            : "Date unavailable"}
+                        </small>
+                      </span>
+                    </button>
+                  ))
+                )}
+
+                <button
+                  type="button"
+                  className="admin-notification-footer"
+                  onClick={() => {
+                    setNotificationOpen(false);
+                    navigate("/admin/messages");
+                  }}
+                >
+                  View All Messages →
+                </button>
+              </div>
+            )}
+          </div>
+
  <div className="admin-profile-wrapper" ref={profileRef}>
     <button
       type="button"
