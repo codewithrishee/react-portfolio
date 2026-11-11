@@ -3025,3 +3025,110 @@ a {
     max-width: unset;
   }
 }
+
+/* ===== FORCE OVERRIDE: VIEW ALL PROJECTS ===== */
+
+.projects-bottom a.view-all-projects {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 16px !important;
+
+    width: 260px !important;
+    min-height: 60px !important;
+    padding: 14px 30px !important;
+
+    background: var(--accent) !important;
+    color: #041012 !important;
+    border: 1px solid var(--accent) !important;
+    border-radius: 50px !important;
+
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    letter-spacing: 0.4px !important;
+
+    box-shadow: 0 8px 28px rgba(0, 229, 212, 0.18) !important;
+    transition: all 0.3s ease !important;
+}
+
+.projects-bottom a.view-all-projects span {
+    font-size: 20px !important;
+}
+
+.projects-bottom a.view-all-projects:hover {
+    background: transparent !important;
+    color: var(--accent) !important;
+    transform: translateY(-4px) !important;
+}
+
+.projects-bottom {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 24px !important;
+    width: 100% !important;
+    margin-top: 50px !important;
+}
+
+@media (max-width: 480px) {
+    .projects-bottom a.view-all-projects {
+        width: 100% !important;
+        max-width: 280px !important;
+        min-height: 56px !important;
+    }
+
+    .projects-bottom {
+        flex-direction: column !important;
+        gap: 18px !important;
+    }
+}
+
+
+/* ALL PROJECTS PAGE HERO */
+
+.all-projects-hero {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 150px 20px 65px;
+    text-align: center;
+}
+
+.all-projects-eyebrow {
+    display: inline-block;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 22px;
+}
+
+.all-projects-hero h1 {
+    font-size: clamp(38px, 6vw, 68px);
+    font-weight: 800;
+    line-height: 1.1;
+    color: #fff;
+    margin: 0 0 22px;
+}
+
+.all-projects-hero h1 span {
+    color: var(--accent);
+}
+
+.all-projects-hero p {
+    max-width: 650px;
+    margin: 0 auto;
+    color: #89959e;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+@media (max-width: 600px) {
+    .all-projects-hero {
+        padding: 120px 20px 45px;
+    }
+
+    .all-projects-hero p {
+        font-size: 14px;
+    }
+}
