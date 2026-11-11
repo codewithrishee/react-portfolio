@@ -1,4 +1,6 @@
+
 import { useEffect, useState } from "react";
+
 const API_URL = `${import.meta.env.VITE_API_URL}/api/journeys`;
 
 const EMPTY_FORM = {
@@ -52,7 +54,6 @@ export default function ManageJourney() {
       setError("");
 
       const data = await apiRequest(API_URL);
-
       setItems(Array.isArray(data) ? data : data.data || []);
     } catch (err) {
       setError(err.message || "Unable to load journey entries.");
@@ -326,29 +327,26 @@ export default function ManageJourney() {
                     <td>{item.sort_order ?? 0}</td>
 
                     <td>
-                      {item.is_active ? "Active" : "Hidden"}
+                      <span className={
+                        item.is_active
+                          ? "journey-status active"
+                          : "journey-status hidden"
+                      }>
+                        {item.is_active ? "Active" : "Hidden"}
+                      </span>
                     </td>
 
                     <td>
                       <div className="journey-admin-row-actions">
-                        <button
-                          type="button"
-                          onClick={() => handleEdit(item)}
-                        >
+                        <button type="button" onClick={() => handleEdit(item)}>
                           Edit
                         </button>
 
-                        <button
-                          type="button"
-                          onClick={() => handleToggle(item)}
-                        >
+                        <button type="button" onClick={() => handleToggle(item)}>
                           {item.is_active ? "Hide" : "Show"}
                         </button>
 
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(item)}
-                        >
+                        <button type="button" onClick={() => handleDelete(item)}>
                           Delete
                         </button>
                       </div>

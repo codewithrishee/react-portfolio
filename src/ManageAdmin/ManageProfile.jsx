@@ -27,9 +27,11 @@ const ManageProfile = () => {
 
     const token = localStorage.getItem("admin_token");
 
-    const photoUrl = profile.profile_photo
-        ? `${API_URL}/storage/${profile.profile_photo}`
-        : "";
+  const photoUrl = profile.profile_photo
+    ? profile.profile_photo.startsWith("http")
+        ? profile.profile_photo
+        : `${API_URL}/storage/${profile.profile_photo}`
+    : "";
 
     useEffect(() => {
         const fetchProfile = async () => {

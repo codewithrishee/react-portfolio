@@ -443,76 +443,92 @@ export default function ManageSkills() {
         </div>
       </form>
 
-      <div className="skills-list">
-        <h2>All Skills</h2>
+      
+<div className="skills-list">
+  <h2>All Skills</h2>
 
-        {loading ? (
-          <p>Loading skills...</p>
-        ) : skills.length === 0 ? (
-          <p>No skills found.</p>
-        ) : (
-          <div className="skills-table-wrapper">
-            <table className="skills-table">
-              <thead>
-                <tr>
-                  <th>Skill</th>
-                  <th>Category</th>
-                  <th>Icon Type</th>
-                  <th>Order</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
+  {loading ? (
+    <p>Loading skills...</p>
+  ) : skills.length === 0 ? (
+    <p>No skills found.</p>
+  ) : (
+    <div className="skills-table-wrapper">
+      <table className="skills-table">
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>Category</th>
+            <th>Logo</th>
+            <th>Order</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
 
-              <tbody>
-                {skills.map((skill) => (
-                  <tr key={skill.id}>
-                    <td>
-                      <strong>{skill.name}</strong>
-                      <small>{skill.description}</small>
-                    </td>
+        <tbody>
+          {skills.map((skill) => (
+            <tr key={skill.id}>
+              <td>
+                <div className="skill-name-cell">
+                  <strong>{skill.name}</strong>
+                  <small>{skill.description}</small>
+                </div>
+              </td>
 
-                    <td>{skill.category}</td>
-                    <td>
-                      {skill.icon_type === "image" ? "Image Logo" : "Bootstrap Icon"}
-                    </td>
-                    <td>{skill.sort_order}</td>
+              <td>{skill.category}</td>
 
-                    <td>
-                      {skill.is_active ? "Active" : "Hidden"}
-                    </td>
+              <td>
+                <div className="skill-logo-preview">
+                  {skill.icon_type === "image" && skill.image ? (
+                    <img
+                      src={getImageUrl(skill.image)}
+                      alt={`${skill.name} logo`}
+                    />
+                  ) : (
+                    <i
+                      className={skill.icon}
+                      aria-label={`${skill.name} icon`}
+                      title={skill.icon}
+                    />
+                  )}
+                </div>
+              </td>
 
-                    <td>
-                      <div className="skills-row-actions">
-                        <button
-                          type="button"
-                          onClick={() => editSkill(skill)}
-                        >
-                          Edit
-                        </button>
+              <td>{skill.sort_order}</td>
 
-                        <button
-                          type="button"
-                          onClick={() => toggleSkill(skill)}
-                        >
-                          {skill.is_active ? "Hide" : "Show"}
-                        </button>
+              <td>
+                <span className={
+                  skill.is_active
+                    ? "skill-status active"
+                    : "skill-status hidden"
+                }>
+                  {skill.is_active ? "Active" : "Hidden"}
+                </span>
+              </td>
 
-                        <button
-                          type="button"
-                          onClick={() => deleteSkill(skill)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              <td>
+                <div className="skills-row-actions">
+                  <button type="button" onClick={() => editSkill(skill)}>
+                    Edit
+                  </button>
+
+                  <button type="button" onClick={() => toggleSkill(skill)}>
+                    {skill.is_active ? "Hide" : "Show"}
+                  </button>
+
+                  <button type="button" onClick={() => deleteSkill(skill)}>
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</div>
+
     </div>
   );
 }
