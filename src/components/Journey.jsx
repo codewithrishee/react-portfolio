@@ -7,27 +7,88 @@ export default function Journey() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function fetchJourneys() {
-      try {
-        const response = await fetch(API_URL);
+  
+useEffect(() => {
+  let cancelled = false;
 
-        if (!response.ok) {
-          throw new Error("Failed to load journey.");
+  async function fetchJourneys() {
+    setLoading(true);
+    setError("");
+
+    try {
+      let lastError;
+
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        const controller = new AbortController();
+
+        const timeout = setTimeout(
+          () => controller.abort(),
+          45000
+        );
+
+        try {
+          const response = await fetch(API_URL, {
+            signal: controller.signal,
+            cache: "no-store",
+          });
+
+          if (!response.ok) {
+            throw new Error(`Journey API error: ${response.status}`);
+          }
+
+          const result = await response.json();
+
+          const items = Array.isArray(result)
+            ? result
+            : result.data;
+
+          if (!Array.isArray(items)) {
+            throw new Error("Invalid journey API response.");
+          }
+
+          if (cancelled) return;
+
+          setJourneyItems(items);
+          setError("");
+          return;
+
+        } catch (err) {
+          lastError = err;
+
+          if (attempt < 2 && !cancelled) {
+            await new Promise(resolve =>
+              setTimeout(resolve, 2000)
+            );
+          }
+        } finally {
+          clearTimeout(timeout);
         }
 
-        const data = await response.json();
+        if (cancelled) return;
+      }
 
-        setJourneyItems(Array.isArray(data) ? data : data.data || []);
-      } catch (err) {
-        setError(err.message);
-      } finally {
+      if (!cancelled) {
+        setError(
+          lastError?.name === "AbortError"
+            ? "Journey is taking longer than expected. Please try again."
+            : "Journey is temporarily unavailable."
+        );
+      }
+
+    } finally {
+      if (!cancelled) {
         setLoading(false);
       }
     }
+  }
 
-    fetchJourneys();
-  }, []);
+  fetchJourneys();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+
 
   return (
     <section className="journey-section" id="journey">

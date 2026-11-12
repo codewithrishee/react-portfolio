@@ -64,39 +64,87 @@ export default function Projects({ showAll = false }) {
   const [error, setError] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
+ 
+useEffect(() => {
+  let cancelled = false;
 
-        const response = await fetch(API_URL);
+  const fetchProjects = async () => {
+    setIsLoading(true);
+    setError("");
 
-        if (!response.ok) {
-          throw new Error("Projects load nahi ho paaye.");
-        }
+    try {
+      let lastError;
 
-        const result = await response.json();
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        const controller = new AbortController();
 
-        if (!result.success || !Array.isArray(result.data)) {
-          throw new Error("API se unexpected response mila.");
-        }
-
-        setProjects(result.data.map((project, index) =>
-          formatProject(project, index)
-        ));
-      } catch (err) {
-        setError(
-          err.message ||
-            "Projects load nahi ho paaye. Laravel server check karo."
+        const timeout = setTimeout(
+          () => controller.abort(),
+          45000
         );
-      } finally {
+
+        try {
+          const response = await fetch(API_URL, {
+            signal: controller.signal,
+            cache: "no-store",
+          });
+
+          if (!response.ok) {
+            throw new Error(`Projects API error: ${response.status}`);
+          }
+
+          const result = await response.json();
+
+          if (!result.success || !Array.isArray(result.data)) {
+            throw new Error("Invalid projects API response.");
+          }
+
+          if (cancelled) return;
+
+          setProjects(
+            result.data.map((project, index) =>
+              formatProject(project, index)
+            )
+          );
+
+          setError("");
+          return;
+
+        } catch (err) {
+          lastError = err;
+
+          if (attempt < 2 && !cancelled) {
+            await new Promise(resolve =>
+              setTimeout(resolve, 2000)
+            );
+          }
+        } finally {
+          clearTimeout(timeout);
+        }
+
+        if (cancelled) return;
+      }
+
+      if (!cancelled) {
+        setError(
+          "Projects are temporarily unavailable. Please try again shortly."
+        );
+      }
+
+    } finally {
+      if (!cancelled) {
         setIsLoading(false);
       }
-    };
+    }
+  };
 
-    fetchProjects();
-  }, []);
+  fetchProjects();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+
 
   useEffect(() => {
     if (!selectedProject) return;
