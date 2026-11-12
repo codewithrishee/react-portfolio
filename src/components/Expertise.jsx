@@ -18,32 +18,82 @@ export default function Expertise() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchSkills = async () => {
-      try {
-        const response = await fetch(API_URL);
+ 
+useEffect(() => {
+  let cancelled = false;
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch skills (${response.status})`);
+  const fetchSkills = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      let lastError;
+
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        const controller = new AbortController();
+
+        const timeout = setTimeout(
+          () => controller.abort(),
+          45000
+        );
+
+        try {
+          const response = await fetch(API_URL, {
+            signal: controller.signal,
+            cache: "no-store",
+          });
+
+          if (!response.ok) {
+            throw new Error(`Skills API error: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (!Array.isArray(data)) {
+            throw new Error("Invalid skills API response.");
+          }
+
+          if (cancelled) return;
+
+          setSkills(data);
+          setError("");
+          return;
+
+        } catch (err) {
+          lastError = err;
+
+          if (attempt < 2 && !cancelled) {
+            await new Promise(resolve =>
+              setTimeout(resolve, 2000)
+            );
+          }
+
+        } finally {
+          clearTimeout(timeout);
         }
 
-        const data = await response.json();
+        if (cancelled) return;
+      }
 
-        if (!Array.isArray(data)) {
-          throw new Error("Invalid skills data received from API.");
-        }
+      if (!cancelled) {
+        console.error("Skills API error:", lastError);
+        setError("Skills are temporarily unavailable. Please try again shortly.");
+      }
 
-        setSkills(data);
-      } catch (err) {
-        console.error("Skills API error:", err);
-        setError("Unable to load skills. Please try again later.");
-      } finally {
+    } finally {
+      if (!cancelled) {
         setLoading(false);
       }
-    };
+    }
+  };
 
-    fetchSkills();
-  }, []);
+  fetchSkills();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+
 
   // Generate filter categories dynamically from API data.
   const categories = [
@@ -68,6 +118,7 @@ export default function Expertise() {
           return group === activeCategory;
         });
 
+        
   // Keep the selected filter valid when API data changes.
   useEffect(() => {
     if (activeCategory !== "ALL" && !categories.includes(activeCategory)) {

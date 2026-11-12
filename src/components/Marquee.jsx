@@ -1,27 +1,73 @@
+
 import { useEffect, useState } from "react";
+
+const API_URL = `${import.meta.env.VITE_API_URL}/api/marquee-items`;
 
 export default function Marquee() {
   const [technologies, setTechnologies] = useState([]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchTechnologies = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/marquee-items`
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        const controller = new AbortController();
+
+        const timeout = setTimeout(
+          () => controller.abort(),
+          45000
         );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch technologies");
+        try {
+          const response = await fetch(API_URL, {
+            signal: controller.signal,
+            cache: "no-store",
+          });
+
+          if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+          }
+
+          const result = await response.json();
+
+          const data = Array.isArray(result)
+            ? result
+            : result.data;
+
+          if (!Array.isArray(data)) {
+            throw new Error("Invalid marquee API response.");
+          }
+
+          if (!cancelled) {
+            setTechnologies(data);
+          }
+
+          return;
+
+        } catch (error) {
+          if (attempt === 2 && !cancelled) {
+            console.error("Marquee API error:", error);
+          }
+
+          if (attempt < 2 && !cancelled) {
+            await new Promise(resolve =>
+              setTimeout(resolve, 2000)
+            );
+          }
+
+        } finally {
+          clearTimeout(timeout);
         }
 
-        const data = await response.json();
-        setTechnologies(data);
-      } catch (error) {
-        console.error("Marquee API error:", error);
+        if (cancelled) return;
       }
     };
 
     fetchTechnologies();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (technologies.length === 0) {

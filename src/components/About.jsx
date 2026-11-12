@@ -1,16 +1,69 @@
+
 import { useEffect, useState } from "react";
+
+const API_URL = `${import.meta.env.VITE_API_URL}/api/about`;
 
 export default function About() {
   const [about, setAbout] = useState(null);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/about`)
-      .then((response) => {
-        if (!response.ok) throw new Error("About fetch failed");
-        return response.json();
-      })
-      .then(setAbout)
-      .catch((error) => console.error("About API:", error));
+    let cancelled = false;
+
+    const fetchAbout = async () => {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        const controller = new AbortController();
+
+        const timeout = setTimeout(
+          () => controller.abort(),
+          45000
+        );
+
+        try {
+          const response = await fetch(API_URL, {
+            signal: controller.signal,
+            cache: "no-store",
+          });
+
+          if (!response.ok) {
+            throw new Error(`About API error: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (!data || typeof data !== "object" || Array.isArray(data)) {
+            throw new Error("Invalid About API response.");
+          }
+
+          if (!cancelled) {
+            setAbout(data);
+          }
+
+          return;
+
+        } catch (error) {
+          if (attempt === 2 && !cancelled) {
+            console.error("About API error:", error);
+          }
+
+          if (attempt < 2 && !cancelled) {
+            await new Promise(resolve =>
+              setTimeout(resolve, 2000)
+            );
+          }
+
+        } finally {
+          clearTimeout(timeout);
+        }
+
+        if (cancelled) return;
+      }
+    };
+
+    fetchAbout();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (!about || !about.is_active) return null;
@@ -32,7 +85,7 @@ export default function About() {
               {about.image && (
                 <img
                   src={about.image}
-                  alt={about.name}
+                  alt={about.name || "Profile"}
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                   }}
@@ -41,7 +94,7 @@ export default function About() {
 
               <div className="profile-image-placeholder">
                 <span>
-                  {about.name
+                  {(about.name || "V")
                     .split(" ")
                     .map((part) => part[0])
                     .join("")

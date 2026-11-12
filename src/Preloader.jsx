@@ -34,7 +34,7 @@ export default function Preloader({ onComplete }) {
       <div className="preloader-inner">
         <div className="preloader-top">
           <span className="preloader-name">
-            VIJAY Risheee<span className="preloader-dot">.</span>
+            VIJAY Kumar<span className="preloader-dot">.</span>
           </span>
 
           <span className="preloader-percent">

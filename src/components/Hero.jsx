@@ -24,6 +24,8 @@ const defaultHero = {
   secondary_button_link: "#contact",
   github_url: "https://github.com/",
   linkedin_url: "https://www.linkedin.com/",
+  instagram_url: "https://www.instagram.com/i.xvijayyyyy/",
+  facebook_url: "https://www.facebook.com/profile.php?id=100054973491531",
   experience_value: "06+",
   experience_label: "MONTHS EXPERIENCE",
   technology_count: "05+",
@@ -42,41 +44,66 @@ export default function Hero() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch dynamic Hero data from Laravel
+
   useEffect(() => {
-    const controller = new AbortController();
+    let cancelled = false;
 
     async function fetchHero() {
-      try {
-        const response = await fetch(API_URL, {
-          signal: controller.signal,
-        });
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        const controller = new AbortController();
 
-        if (!response.ok) {
-          throw new Error(`Hero API failed: ${response.status}`);
+        const timeout = setTimeout(() => controller.abort(), 45000);
+
+        try {
+          const response = await fetch(API_URL, {
+            signal: controller.signal,
+            cache: "no-store",
+          });
+
+          if (!response.ok) {
+            throw new Error(`Hero API failed: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (
+            data &&
+            typeof data === "object" &&
+            !Array.isArray(data) &&
+            !cancelled
+          ) {
+            setHero((previous) => ({
+              ...previous,
+              ...data,
+              roles:
+                Array.isArray(data.roles) && data.roles.length > 0
+                  ? data.roles
+                  : previous.roles,
+            }));
+          }
+
+          return;
+        } catch (error) {
+          if (attempt === 2 && !cancelled) {
+            console.error("Hero API Error:", error);
+          }
+
+          if (attempt < 2 && !cancelled) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+          }
+        } finally {
+          clearTimeout(timeout);
         }
 
-        const data = await response.json();
-
-        if (data && typeof data === "object" && !Array.isArray(data)) {
-          setHero((previous) => ({
-            ...previous,
-            ...data,
-            roles:
-              Array.isArray(data.roles) && data.roles.length > 0
-                ? data.roles
-                : previous.roles,
-          }));
-        }
-      } catch (error) {
-        if (error.name !== "AbortError") {
-          console.error("Hero API Error:", error);
-        }
+        if (cancelled) return;
       }
     }
 
     fetchHero();
 
-    return () => controller.abort();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const roles =
@@ -209,6 +236,55 @@ export default function Hero() {
                   fill="currentColor"
                 >
                   <path d="M20.45 2H3.55C2.69 2 2 2.68 2 3.52v16.96c0 .84.69 1.52 1.55 1.52h16.9c.86 0 1.55-.68 1.55-1.52V3.52c0-.84-.69-1.52-1.55-1.52ZM7.93 18.45H4.97V9h2.96v9.45ZM6.45 7.71a1.72 1.72 0 1 1 0-3.44 1.72 1.72 0 0 1 0 3.44Zm12 10.74h-2.96v-4.6c0-1.1-.02-2.51-1.53-2.51-1.53 0-1.77 1.19-1.77 2.43v4.68H9.23V9h2.84v1.29h.04c.4-.74 1.36-1.53 2.8-1.53 3 0 3.55 1.97 3.55 4.53v5.16Z" />
+                </svg>
+              </a>
+            )}
+
+            {hero.instagram_url && (
+              <>
+                <a
+                  href={hero.instagram_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <circle
+                      cx="17.5"
+                      cy="6.5"
+                      r="1"
+                      fill="currentColor"
+                      stroke="none"
+                    />
+                  </svg>
+                </a>
+                <span></span>
+              </>
+            )}
+
+            {hero.facebook_url && (
+              <a
+                href={hero.facebook_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="currentColor"
+                >
+                  <path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.4-.1-2.6-.1-2.6 0-4.4 1.6-4.4 4.5V10H7v3h2.8v8h3.7Z" />
                 </svg>
               </a>
             )}
