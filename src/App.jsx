@@ -25,6 +25,7 @@ import ManageAbout from "./ManageAdmin/ManageAbout";
 import ManageHero from "./ManageAdmin/ManageHero";
 import ManageResume from "./ManageAdmin/ManageResume";
 import ManageProfile from "./ManageAdmin/ManageProfile";
+import ManagePreloader from "./ManageAdmin/ManagePreloader";
 
 function PortfolioHome() {
   const [isLoading, setIsLoading] = useState(true);
@@ -87,8 +88,8 @@ function App() {
           <Route path="resume" element={<ManageResume />} />
 
           <Route path="profile" element={<ManageProfile />} />
-
           
+          <Route path="preloader" element={<ManagePreloader />} />
         </Route>
 
         {/* 404 */}
