@@ -1,0 +1,84 @@
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #080d18;
+  color: #fff;
+  transition: opacity 0.5s ease;
+}
+
+.preloader-inner {
+  width: min(520px, calc(100% - 40px));
+}
+
+.preloader-top,
+.preloader-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.preloader-name {
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight: 700;
+}
+
+.preloader-dot {
+  color: #22d3ee;
+}
+
+.preloader-percent {
+  color: #22d3ee;
+  font-variant-numeric: tabular-nums;
+}
+
+.preloader-line {
+  width: 100%;
+  height: 3px;
+  margin: 25px 0 18px;
+  overflow: hidden;
+  background: rgba(255,255,255,.12);
+}
+
+.preloader-line-fill {
+  height: 100%;
+  background: #22d3ee;
+  transition: width 0.08s linear;
+}
+
+.preloader-bottom {
+  color: rgba(255,255,255,.65);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+}
+
+.preloader-logo {
+  display: block;
+  max-width: 100%;
+  object-fit: contain;
+  margin: 0 auto 25px;
+}
+
+.preloader-spinner .preloader-line {
+  display: none;
+}
+
+.preloader-fade {
+  animation: preloader-fade 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes preloader-fade {
+  from { opacity: .65; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .preloader-bottom {
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+}
