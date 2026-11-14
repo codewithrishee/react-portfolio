@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import "./Admin.css";
 
@@ -25,6 +24,8 @@ const initialForm = {
   secondary_button_link: "#contact",
   github_url: "",
   linkedin_url: "",
+  instagram_url: "",
+  facebook_url: "",
   experience_value: "06+",
   experience_label: "MONTHS EXPERIENCE",
   technology_count: "05+",
@@ -68,7 +69,7 @@ function ManageHero() {
           throw new Error(
             response.status === 401 || response.status === 403
               ? "Your session has expired or you do not have permission."
-              : "Unable to load Hero section data."
+              : "Unable to load Hero section data.",
           );
         }
 
@@ -149,7 +150,7 @@ function ManageHero() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       const result = await response.json().catch(() => ({}));
@@ -160,7 +161,7 @@ function ManageHero() {
           : "";
 
         throw new Error(
-          validationErrors || result.message || "Unable to save Hero section."
+          validationErrors || result.message || "Unable to save Hero section.",
         );
       }
 
@@ -171,7 +172,7 @@ function ManageHero() {
       setMessage(
         isUpdating
           ? "Hero section updated successfully!"
-          : "Hero section created successfully!"
+          : "Hero section created successfully!",
       );
 
       setMessageType("success");
@@ -230,8 +231,8 @@ function ManageHero() {
 
       {!heroId && (
         <div className="mh-note">
-          No existing Hero record was found. Saving this form will create a
-          new record.
+          No existing Hero record was found. Saving this form will create a new
+          record.
         </div>
       )}
 
@@ -287,16 +288,34 @@ function ManageHero() {
         </section>
 
         <section className="mh-section">
-          <h2>Social Profiles</h2>
-          <div className="mh-grid">
-            {renderInput("github_url", "GitHub URL", "https://github.com/")}
-            {renderInput(
-              "linkedin_url",
-              "LinkedIn URL",
-              "https://www.linkedin.com/"
-            )}
-          </div>
-        </section>
+  <h2>Social Profiles</h2>
+
+  <div className="mh-grid">
+    {renderInput(
+      "github_url",
+      "GitHub URL",
+      "https://github.com/"
+    )}
+
+    {renderInput(
+      "linkedin_url",
+      "LinkedIn URL",
+      "https://www.linkedin.com/"
+    )}
+
+    {renderInput(
+      "instagram_url",
+      "Instagram URL",
+      "https://www.instagram.com/"
+    )}
+
+    {renderInput(
+      "facebook_url",
+      "Facebook URL",
+      "https://www.facebook.com/"
+    )}
+  </div>
+</section>
 
         <section className="mh-section">
           <h2>Portfolio Statistics</h2>
@@ -324,8 +343,8 @@ function ManageHero() {
             <span>
               <strong>Show Hero Section</strong>
               <small>
-                When unchecked, the public Hero API will not return this
-                active record.
+                When unchecked, the public Hero API will not return this active
+                record.
               </small>
             </span>
           </label>
